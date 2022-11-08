@@ -31,6 +31,9 @@ class TIMUIKitConversation extends StatefulWidget {
   /// conversation controller
   final TIMUIKitConversationController? controller;
 
+  /// custom item
+  final Widget? itemWidget;
+
   /// the builder for conversation item
   final ConversationItemBuilder? itembuilder;
 
@@ -64,6 +67,7 @@ class TIMUIKitConversation extends StatefulWidget {
       this.onTapItem,
       this.controller,
       this.itembuilder,
+      this.itemWidget,
       this.isShowDraft = true,
       this.itemSlidableBuilder,
       this.conversationCollector,
@@ -283,27 +287,34 @@ class _TIMUIKitConversationState extends TIMUIKitState<TIMUIKitConversation> {
                         return Slidable(
                             groupTag: 'conversation-list',
                             child: InkWell(
-                              child: TIMUIKitConversationItem(
-                                  isShowDraft: widget.isShowDraft,
-                                  lastMessageBuilder: widget.lastMessageBuilder,
-                                  faceUrl: conversationItem.faceUrl ?? "",
-                                  nickName: conversationItem.showName ?? "",
-                                  isDisturb: conversationItem.recvOpt != 0,
-                                  lastMsg: conversationItem.lastMessage,
-                                  isPined: conversationItem.isPinned ?? false,
-                                  groupAtInfoList:
-                                      conversationItem.groupAtInfoList ?? [],
-                                  unreadCount:
-                                      conversationItem.unreadCount ?? 0,
-                                  draftText: conversationItem.draftText,
-                                  onlineStatus: (widget.isShowOnlineStatus &&
-                                          conversationItem.userID != null &&
-                                          conversationItem.userID!.isNotEmpty)
-                                      ? onlineStatus
-                                      : null,
-                                  draftTimestamp:
-                                      conversationItem.draftTimestamp,
-                                  convType: conversationItem.type),
+                              child: widget.itemWidget != null
+                                  ? widget.itemWidget!
+                                  : TIMUIKitConversationItem(
+                                      isShowDraft: widget.isShowDraft,
+                                      lastMessageBuilder:
+                                          widget.lastMessageBuilder,
+                                      faceUrl: conversationItem.faceUrl ?? "",
+                                      nickName: conversationItem.showName ?? "",
+                                      isDisturb: conversationItem.recvOpt != 0,
+                                      lastMsg: conversationItem.lastMessage,
+                                      isPined:
+                                          conversationItem.isPinned ?? false,
+                                      groupAtInfoList:
+                                          conversationItem.groupAtInfoList ??
+                                              [],
+                                      unreadCount:
+                                          conversationItem.unreadCount ?? 0,
+                                      draftText: conversationItem.draftText,
+                                      onlineStatus: (widget
+                                                  .isShowOnlineStatus &&
+                                              conversationItem.userID != null &&
+                                              conversationItem
+                                                  .userID!.isNotEmpty)
+                                          ? onlineStatus
+                                          : null,
+                                      draftTimestamp:
+                                          conversationItem.draftTimestamp,
+                                      convType: conversationItem.type),
                               onTap: () => onTapConvItem(conversationItem),
                             ),
                             endActionPane: ActionPane(
