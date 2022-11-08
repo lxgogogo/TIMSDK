@@ -18,8 +18,8 @@ import 'package:tim_ui_kit/base_widgets/tim_ui_kit_base.dart';
 import 'package:tencent_im_base/tencent_im_base.dart';
 
 typedef ConversationItemBuilder = Widget Function(
-    V2TimConversation conversationItem,
-    [V2TimUserStatus? onlineStatus]);
+    V2TimConversation conversationItem, bool isShowDraft,
+    {LastMessageBuilder? lastMessageBuilder, V2TimUserStatus? onlineStatus});
 
 typedef ConversationItemSlidableBuilder = List<ConversationItemSlidablePanel>
     Function(V2TimConversation conversationItem);
@@ -30,9 +30,6 @@ class TIMUIKitConversation extends StatefulWidget {
 
   /// conversation controller
   final TIMUIKitConversationController? controller;
-
-  /// custom item
-  final Widget? itemWidget;
 
   /// the builder for conversation item
   final ConversationItemBuilder? itembuilder;
@@ -67,7 +64,6 @@ class TIMUIKitConversation extends StatefulWidget {
       this.onTapItem,
       this.controller,
       this.itembuilder,
-      this.itemWidget,
       this.isShowDraft = true,
       this.itemSlidableBuilder,
       this.conversationCollector,
@@ -277,19 +273,13 @@ class _TIMUIKitConversationState extends TIMUIKitState<TIMUIKitConversation> {
                                     item.userID == conversationItem?.userID,
                                 orElse: () => V2TimUserStatus(statusType: 0));
 
-                        if (widget.itembuilder != null) {
-                          return widget.itembuilder!(
-                              conversationItem!, onlineStatus);
-                        }
-
                         final slidableChildren =
                             _getSlidableBuilder()(conversationItem!);
                         return Slidable(
                             groupTag: 'conversation-list',
                             child: InkWell(
-                              child: widget.itemWidget != null
-                                  ? widget.itemWidget!
-                                  : TIMUIKitConversationItem(
+                              child: widget.itembuilder != null
+                                  ? TIMUIKitConversationItem(
                                       isShowDraft: widget.isShowDraft,
                                       lastMessageBuilder:
                                           widget.lastMessageBuilder,
@@ -314,7 +304,20 @@ class _TIMUIKitConversationState extends TIMUIKitState<TIMUIKitConversation> {
                                           : null,
                                       draftTimestamp:
                                           conversationItem.draftTimestamp,
-                                      convType: conversationItem.type),
+                                      convType: conversationItem.type)
+                                  : widget.itembuilder!(
+                                      conversationItem,
+                                      widget.isShowDraft,
+                                      lastMessageBuilder:
+                                          widget.lastMessageBuilder,
+                                      onlineStatus: (widget
+                                                  .isShowOnlineStatus &&
+                                              conversationItem.userID != null &&
+                                              conversationItem
+                                                  .userID!.isNotEmpty)
+                                          ? onlineStatus
+                                          : null,
+                                    ),
                               onTap: () => onTapConvItem(conversationItem),
                             ),
                             endActionPane: ActionPane(
